@@ -1,0 +1,68 @@
+﻿<UserControl x:Class="LibraryExplorer.LibraryExplorerWindowControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             Background="{DynamicResource VsBrush.Window}"
+             Foreground="{DynamicResource VsBrush.WindowText}"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="300"
+             Name="MainWindow">
+    <StackPanel Orientation="Vertical">
+        <Expander Name="solutionPackages" Header="Solution packages" 
+                  ExpandDirection="Down" IsExpanded="True">
+            <ItemsControl ItemsSource="{Binding SolutionPackages}">
+                <ItemsControl.Template>
+                    <ControlTemplate TargetType="ItemsControl">
+                        <ItemsPresenter/>
+                    </ControlTemplate>
+                </ItemsControl.Template>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <TextBlock x:Name="title" Text="{Binding Title}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Expander>
+        <Expander Name="LibraryPackages" Header="Library packages"
+                  HorizontalAlignment="Left"  
+                  ExpandDirection="Down" IsExpanded="True">
+            <ListView ItemsSource="{Binding LibraryPackages}" SelectedItem ="{Binding SelectedLibraryPackage, Mode=OneWayToSource}">
+                <ListView.Template>
+                    <ControlTemplate TargetType="ListView">
+                        <ItemsPresenter/>
+                    </ControlTemplate>
+                </ListView.Template>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <GroupBox>
+                            <GroupBox.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="7*" />
+                                        <ColumnDefinition Width="3*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0" x:Name="title" Text="{Binding Title}" FontWeight="Bold"/>
+                                    <Button Grid.Column="1" Content="+"/>
+                                </Grid>
+                            </GroupBox.Header>
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Editor" FontWeight="DemiBold" Width="80"/>
+                                    <TextBlock Text="{Binding Editor}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Description" FontWeight="DemiBold" Width="80"/>
+                                    <TextBlock Text="{Binding Description}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Expander>
+    </StackPanel>
+</UserControl>
