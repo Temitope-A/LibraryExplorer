@@ -9,7 +9,63 @@
              d:DesignHeight="600" d:DesignWidth="300"
              Name="MainWindow">
     <StackPanel Orientation="Vertical">
-        <Expander Name="solutionPackages" Header="Solution packages" 
+        <StackPanel.Resources>
+            <Style x:Key="{x:Type ListViewItem}" TargetType="ListViewItem">
+                <Setter Property="SnapsToDevicePixels" Value="true"/>
+                <Setter Property="OverridesDefaultStyle" Value="true"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border Name="Border" Padding="2" SnapsToDevicePixels="true" Background="Transparent">
+                                <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsSelected" Value="true">
+                                    <Setter TargetName="Border" Property="Background" Value="Transparent"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="false">
+                                    <Setter Property="Foreground" Value="Transparent"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="true">
+                                    <Setter TargetName="Border" Property="Background" Value="Transparent"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <ControlTemplate x:Key="ExpanderTemplate" TargetType="{x:Type Expander}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Name="ContentRow" Height="0"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Name="Border"
+                          Background="#F5F5E5">
+                        <ContentPresenter ContentSource="Header" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                    </Border>
+                    <Border Grid.Row="1" Name="Content"
+                            BorderThickness="1,0,1,1"
+                            CornerRadius="0,0,4,4" >
+                        <ContentPresenter Margin="4" />
+                    </Border>
+                </Grid>
+
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter TargetName="ContentRow" Property="Height" Value="{Binding ElementName=Content,Path=DesiredHeight}" />
+                        <Setter TargetName="Border" Property="Background" Value="#FFE999" />
+                    </Trigger>
+                    <!--
+                    <Trigger Property="IsExpanded" Value="True">
+                      <Setter TargetName="ContentRow" Property="Height" Value="{Binding ElementName=Content,Path=DesiredHeight}" />
+                    </Trigger>-->
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
+        </StackPanel.Resources>
+        
+        <Expander Name="solutionPackages" Header="Solution packages" HorizontalAlignment="Stretch" 
                   ExpandDirection="Down" IsExpanded="True">
             <ItemsControl ItemsSource="{Binding SolutionPackages}">
                 <ItemsControl.Template>
@@ -27,28 +83,38 @@
             </ItemsControl>
         </Expander>
         <Expander Name="LibraryPackages" Header="Library packages"
-                  HorizontalAlignment="Left"  
+                  HorizontalAlignment="Stretch"  
                   ExpandDirection="Down" IsExpanded="True">
-            <ListView ItemsSource="{Binding LibraryPackages}" SelectedItem ="{Binding SelectedLibraryPackage, Mode=OneWayToSource}">
+            <ListView ItemsSource="{Binding LibraryPackages}" SelectedItem ="{Binding SelectedLibraryPackage, Mode=OneWayToSource}" HorizontalContentAlignment="Stretch">
+                
                 <ListView.Template>
                     <ControlTemplate TargetType="ListView">
                         <ItemsPresenter/>
                     </ControlTemplate>
                 </ListView.Template>
+
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <GroupBox>
-                            <GroupBox.Header>
-                                <Grid>
+                        <Expander Margin="5" Template="{StaticResource ExpanderTemplate}">
+                            <Expander.Header>
+                                <Grid Height="50" VerticalAlignment="Center">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="7*" />
-                                        <ColumnDefinition Width="3*" />
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-
-                                    <TextBlock Grid.Column="0" x:Name="title" Text="{Binding Title}" FontWeight="Bold"/>
-                                    <Button Grid.Column="1" Content="+"/>
+                                    <Rectangle Grid.Column="0" Width="5" Fill="Red"/>
+                                    <Rectangle Grid.Column="1" Width="50" Fill="Gray"/>
+                                    <Grid Grid.Column="2" Margin="5 0 0 0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" Text="{Binding Title}" FontSize="14" FontWeight="Bold"/>
+                                        <TextBlock Grid.Row="1" TextWrapping="WrapWithOverflow" Text="{Binding Description}"/>
+                                    </Grid>
                                 </Grid>
-                            </GroupBox.Header>
+                            </Expander.Header>
                             <StackPanel Orientation="Vertical">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="Editor" FontWeight="DemiBold" Width="80"/>
@@ -59,9 +125,10 @@
                                     <TextBlock Text="{Binding Description}"/>
                                 </StackPanel>
                             </StackPanel>
-                        </GroupBox>
+                        </Expander>
                     </DataTemplate>
                 </ListView.ItemTemplate>
+                
             </ListView>
         </Expander>
     </StackPanel>
