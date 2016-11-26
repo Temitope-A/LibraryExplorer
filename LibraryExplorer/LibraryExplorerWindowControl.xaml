@@ -16,8 +16,8 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ListBoxItem">
-                            <Border Name="Border" Padding="2" SnapsToDevicePixels="true" Background="Transparent">
-                                <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            <Border Name="Border" Margin="4" SnapsToDevicePixels="true" Background="#F5F6FA">
+                                <ContentPresenter/>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsSelected" Value="true">
@@ -35,20 +35,63 @@
                 </Setter>
             </Style>
 
+            <ControlTemplate x:Key="ExpanderToggleHeader" TargetType="{x:Type ToggleButton}">
+                <Border x:Name="ExpanderButtonBorder"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    Padding="5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!--<Rectangle Fill="Transparent" Grid.ColumnSpan="2"/>-->
+                        <Polygon Name="Triangle"
+                            Points="7,3 7,10 0,10, 7,3"
+                            Stroke="Black" Fill="Transparent" StrokeThickness="2">
+                            <Polygon.RenderTransform>
+                                <RotateTransform CenterX="0" CenterY="10" Angle="-45"/>
+                            </Polygon.RenderTransform>
+                        </Polygon>
+                        <ContentPresenter x:Name="HeaderContent" Grid.Column="1" Margin="4,0,0,0" ContentSource="Content"/>
+                    </Grid>
+                </Border>
+                <ControlTemplate.Triggers>
+                    <!--Change the sign to minus when toggled-->
+                    <Trigger Property="IsChecked" Value="True">
+                        <Setter Property="Fill" TargetName="Triangle" Value="Black"/>
+                        <Setter TargetName="Triangle" Property="RenderTransform">
+                            <Setter.Value>
+                                <RotateTransform Angle="0"/>
+                            </Setter.Value>
+                        </Setter>
+                    </Trigger>
+                    <!-- MouseOver, Pressed behaviours-->
+                    <Trigger Property="IsMouseOver" Value="true">
+                        <Setter Property="Fill" Value="#FF1F99FF" TargetName="Triangle"/>
+                        <Setter Property="Stroke" Value="#FF1F99FF" TargetName="Triangle"/>
+                    </Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
+
             <ControlTemplate x:Key="ExpanderItemTemplate" TargetType="{x:Type Expander}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Name="ContentRow" Height="0"/>
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Name="Border"
-                          >
-                        <ContentPresenter ContentSource="Header" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                    <Border Grid.Row="0" Name="Border">
+                        <!--This grid with transparent background makes the entire content active to mouse over-->
+                        <Grid Background="Transparent">
+                            <ContentPresenter ContentSource="Header" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                        </Grid>
                     </Border>
-                    <Border Grid.Row="1" Name="Content"
-                            BorderThickness="1,0,1,1"
-                            CornerRadius="0,0,4,4" >
-                        <ContentPresenter Margin="4" />
+                    <Border Grid.Row="1" Name="Content">
+                        <!--This grid with transparent background makes the entire content active to mouse over-->
+                        <Grid  Background="Transparent">
+                            <ContentPresenter/>
+                        </Grid>
                     </Border>
                 </Grid>
 
@@ -62,13 +105,38 @@
                     </Trigger>-->
                 </ControlTemplate.Triggers>
             </ControlTemplate>
+
+            <ControlTemplate x:Key="ExpanderSectionTemplate" TargetType="{x:Type Expander}">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Name="ContentRow" Height="0"/>
+                    </Grid.RowDefinitions>
+                    <Border Name="Border" Grid.Row="0" Margin="0 10 0 0"
+                        BorderThickness="0 1 0 0" BorderBrush="{DynamicResource VsBrush.PageContentExpanderSeparator}">    
+                        <ToggleButton
+                            OverridesDefaultStyle="True"
+                            Template="{StaticResource ExpanderToggleHeader}"
+                            Content="{TemplateBinding Header}"
+                            IsChecked="{Binding Path=IsExpanded,Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+                    </Border>
+                    <Border Name="Content" Grid.Row="1">
+                        <ContentPresenter Margin="4" />
+                    </Border>
+                </Grid>
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsExpanded" Value="True">
+                        <Setter TargetName="ContentRow" Property="Height" Value="{Binding ElementName=Content,Path=DesiredHeight}" />
+                        <!--<Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource OpenHeaderBorderBrush}"/>-->
+                    </Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
         </StackPanel.Resources>
 
-        <Expander Name="solutionPackages" Header="Solution packages"
-                  HorizontalAlignment="Stretch"
-                  BorderBrush="{DynamicResource VsBrush.PageContentExpanderSeparator}"
-                  BorderThickness="0 2 0 0"
-                  ExpandDirection="Down" IsExpanded="True">
+        <Expander Name="solutionPackages" Template="{StaticResource ExpanderSectionTemplate}" IsExpanded="True">
+            <Expander.Header>
+                <TextBlock Text="Solution packages" FontWeight="Medium"/>
+            </Expander.Header>
             <ItemsControl ItemsSource="{Binding SolutionPackages}">
                 <ItemsControl.Template>
                     <ControlTemplate TargetType="ItemsControl">
@@ -84,12 +152,11 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </Expander>
-        <Expander Name="LibraryPackages" Header="Library packages"
-                  HorizontalAlignment="Stretch"
-                  BorderBrush="{DynamicResource VsBrush.PageContentExpanderSeparator}"
-                  BorderThickness="0 1 0 0"
-                  ExpandDirection="Down" IsExpanded="True"
-                  >
+        <Expander Name="LibraryPackages" Template="{StaticResource ExpanderSectionTemplate}" IsExpanded="True">
+            <Expander.Header>
+                <TextBlock Text="Library packages" FontWeight="Medium"/>
+            </Expander.Header>
+            
             <ListView ItemsSource="{Binding LibraryPackages}" SelectedItem ="{Binding SelectedLibraryPackage, Mode=OneWayToSource}" HorizontalContentAlignment="Stretch">
                 
                 <ListView.Template>
@@ -100,36 +167,58 @@
 
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Expander Margin="5" Template="{StaticResource ExpanderItemTemplate}">
+                        <Expander Template="{StaticResource ExpanderItemTemplate}">
                             <Expander.Header>
                                 <Grid Height="50" VerticalAlignment="Center">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Rectangle Grid.Column="0" Width="5" Fill="Red"/>
                                     <Rectangle Grid.Column="1" Width="50" Fill="Gray"/>
-                                    <Grid Grid.Column="2" Margin="5 0 0 0">
+                                    <Grid Grid.Column="2" Margin="2 0 0 0">
                                         <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
                                         </Grid.RowDefinitions>
                                         <TextBlock Grid.Row="0" Text="{Binding Title}" FontSize="14" FontWeight="Bold"/>
-                                        <TextBlock Grid.Row="1" TextWrapping="WrapWithOverflow" Text="{Binding Description}"/>
+                                        <TextBlock Grid.Row="1" TextWrapping="WrapWithOverflow" Text="{Binding Headerline}"/>
                                     </Grid>
                                 </Grid>
                             </Expander.Header>
-                            <StackPanel Orientation="Vertical">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Editor" FontWeight="DemiBold" Width="80"/>
-                                    <TextBlock Text="{Binding Editor}"/>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Description" FontWeight="DemiBold" Width="80"/>
-                                    <TextBlock Text="{Binding Description}"/>
-                                </StackPanel>
-                            </StackPanel>
+                            <Grid Margin="4" Background="#FFFF99">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Name="Editor" Margin="0 5 0 0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Editor" FontWeight="DemiBold"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Editor}" FontWeight="DemiBold"/>
+                                </Grid>
+                                <Grid Grid.Row="1" Name="Authors"  Margin="0 5 0 0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Authors" FontWeight="DemiBold"/>
+                                    <ItemsControl Grid.Column="1" ItemsSource="{Binding Authors}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Grid.Column="1" Text="{Binding}" FontWeight="DemiBold"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Grid>
+                                <Grid Grid.Row="2" Name="Description"  Margin="0 5 0 0">
+                                    <TextBlock Grid.Column="1" TextWrapping="Wrap" Text="{Binding Description}"/>
+                                </Grid>
+                            </Grid>
                         </Expander>
                     </DataTemplate>
                 </ListView.ItemTemplate>

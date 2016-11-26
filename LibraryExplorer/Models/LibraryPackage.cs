@@ -18,6 +18,16 @@ namespace LibraryExplorer.Models
         public string Title { get; set; }
 
         /// <summary>
+        /// Type of the package
+        /// </summary>
+        public string Type { get; set; }
+
+        /// <summary>
+        /// Header line
+        /// </summary>
+        public string Headerline { get; set; }
+
+        /// <summary>
         /// Authors of the package
         /// </summary>
         public List<string> Authors { get; set; }
