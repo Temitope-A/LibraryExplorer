@@ -51,5 +51,10 @@ namespace LibraryExplorer.Models
         /// Location of the root directory for this package
         /// </summary>
         public string ProjectLocation { get; set; }
+
+        /// <summary>
+        /// Guid of the package project file
+        /// </summary>
+        public string ProjectGuid { get; set; }
     }
 }

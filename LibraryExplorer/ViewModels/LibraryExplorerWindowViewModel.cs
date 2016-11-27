@@ -1,13 +1,21 @@
 ﻿using LibraryExplorer.Models;
 using LibraryExplorer.Services;
+using Microsoft.VisualStudio.Shell.Interop;
 using System.Collections.ObjectModel;
+using System;
+using Microsoft.VisualStudio;
+using System.Windows;
+using System.Collections.Generic;
+using LibraryExplorer.Helpers;
 
 namespace LibraryExplorer.ViewModels
 {
     public class LibraryExplorerWindowViewModel
     {
         #region private fields
-        private readonly ILibraryPackagesExplorer _LibraryPackagesExplorer;
+        private readonly ILibraryExplorer _LibraryPackagesExplorer;
+        private readonly IVsSolution _solutionService;
+        private readonly IVsActivityLog _activityLogService;
         #endregion
 
         #region properties
@@ -37,13 +45,47 @@ namespace LibraryExplorer.ViewModels
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="explorer"></param>
-        public LibraryExplorerWindowViewModel(ILibraryPackagesExplorer explorer)
+        /// <param name="explorerService"></param>
+        public LibraryExplorerWindowViewModel(ILibraryExplorer explorerService, IVsSolution solutionService, IVsActivityLog activityLogService)
         {
-            _LibraryPackagesExplorer = explorer;
+            _LibraryPackagesExplorer = explorerService;
+            _solutionService = solutionService;
+            _activityLogService = activityLogService;
 
             LibraryPackages = new ObservableCollection<LibraryPackage>();
             SolutionPackages = new ObservableCollection<LibraryPackage>();
+
+            Refresh();
+        }
+
+        /// <summary>
+        /// Copy the source code of a package in the library and add it to the current solution as a new project
+        /// </summary>
+        public void AddOrUpdatePackageInSolution()
+        {
+            if (SelectedLibraryPackage == null)
+            {
+                return;
+            }
+
+            string solutionDirectoryPath, solutionFilePath, solutionUserOptionsFilePath;
+            var solutionInfo = _solutionService.GetSolutionInfo(out solutionDirectoryPath, out solutionFilePath, out solutionUserOptionsFilePath);
+
+            if (solutionFilePath == null)
+            {
+                MessageBox.Show("No solution found. First open a solution or create a new one");
+            }
+            else
+            {
+                IntPtr proj;
+                Guid projectType;
+                Guid iidProject = Guid.Empty;
+
+                _solutionService.GetProjectTypeGuid(0, SelectedLibraryPackage.ProjectLocation, out projectType);
+                int result = _solutionService.CreateProject(projectType, SelectedLibraryPackage.ProjectLocation, null, null, (uint)__VSCREATEPROJFLAGS.CPF_OPENFILE, ref iidProject, out proj);
+
+                ErrorHandler.ThrowOnFailure(result);
+            }
 
             Refresh();
         }
@@ -54,29 +96,34 @@ namespace LibraryExplorer.ViewModels
         /// </summary>
         public void Refresh()
         {
-            RefreshLibrary();
-            RefreshSolution();
-        }
-
-        /// <summary>
-        /// Refresh library lists
-        /// </summary>
-        private void RefreshLibrary()
-        {
             LibraryPackages.Clear();
+            SolutionPackages.Clear();
 
-            foreach (var item in _LibraryPackagesExplorer.GetLibraryPackages())
+            var solutionProjectGuids = GetProjectGuidsInSolution();
+
+            foreach (var item in _LibraryPackagesExplorer.GetPackages())
             {
                 LibraryPackages.Add(item);
+                if (solutionProjectGuids.Contains(Guid.Parse(item.ProjectGuid)))
+                {
+                    SolutionPackages.Add(item);
+                }
             }
         }
 
-        /// <summary>
-        /// Refresh solution lists
-        /// </summary>
-        private void RefreshSolution()
+        private List<Guid> GetProjectGuidsInSolution()
         {
-            SolutionPackages.Clear();
+            var projectHierarchies = HierarchyHelper.GetProjectsInSolution(_solutionService);
+            var result = new List<Guid>();
+
+            foreach (var proj in projectHierarchies)
+            {
+                Guid projGuid;
+                proj.GetGuidProperty((uint)VSConstants.VSITEMID.Root, (int)__VSHPROPID.VSHPROPID_ProjectIDGuid, out projGuid);
+                result.Add(projGuid);
+            }
+
+            return result;
         }
     }
 }

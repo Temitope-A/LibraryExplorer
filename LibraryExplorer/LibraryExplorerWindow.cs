@@ -11,6 +11,8 @@ namespace LibraryExplorer
     using Microsoft.VisualStudio.Shell;
     using System.ComponentModel.Design;
     using Microsoft.VisualStudio.Shell.Interop;
+    using ViewModels;
+    using Services;
 
     /// <summary>
     /// This class implements the tool window exposed by this package and hosts a user control.
@@ -36,11 +38,18 @@ namespace LibraryExplorer
         {
             this.Caption = "Library Explorer";
 
+            //Visual Studio services
+            IVsActivityLog activityLogService = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsActivityLog)) as IVsActivityLog;
+            IVsSolution solutionService = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
+
+            //Own services
+            ILibraryExplorer libraryExplorerService = new LibraryExplorer(@"C:\LibraryPackages");
 
             // This is the user control hosted by the tool window; Note that, even if this class implements IDisposable,
             // we are not calling Dispose on this object. This is because ToolWindowPane calls Dispose on
             // the object returned by the Content property.
-            control = new LibraryExplorerWindowControl();
+            var viewModel = new LibraryExplorerWindowViewModel(libraryExplorerService, solutionService, activityLogService);
+            control = new LibraryExplorerWindowControl(viewModel);
             this.Content = control;
 
             this.ToolBar = new CommandID(LibraryExplorerWindowCommand.CommandSet, LibraryExplorerWindowCommand.ToolbarID);

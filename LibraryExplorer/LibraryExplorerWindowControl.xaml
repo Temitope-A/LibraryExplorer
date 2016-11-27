@@ -35,6 +35,10 @@
                 </Setter>
             </Style>
 
+            <ControlTemplate x:Key="ListViewTemplate" TargetType="ListView">
+                <ItemsPresenter/>
+            </ControlTemplate>
+
             <ControlTemplate x:Key="ExpanderToggleHeader" TargetType="{x:Type ToggleButton}">
                 <Border x:Name="ExpanderButtonBorder"
                     Background="{TemplateBinding Background}"
@@ -49,7 +53,7 @@
                         <!--<Rectangle Fill="Transparent" Grid.ColumnSpan="2"/>-->
                         <Polygon Name="Triangle"
                             Points="7,3 7,10 0,10, 7,3"
-                            Stroke="Black" Fill="Transparent" StrokeThickness="2">
+                            Stroke="{DynamicResource VsBrush.WindowText}" Fill="Transparent" StrokeThickness="2">
                             <Polygon.RenderTransform>
                                 <RotateTransform CenterX="0" CenterY="10" Angle="-45"/>
                             </Polygon.RenderTransform>
@@ -60,7 +64,7 @@
                 <ControlTemplate.Triggers>
                     <!--Change the sign to minus when toggled-->
                     <Trigger Property="IsChecked" Value="True">
-                        <Setter Property="Fill" TargetName="Triangle" Value="Black"/>
+                        <Setter Property="Fill" TargetName="Triangle" Value="{DynamicResource VsBrush.WindowText}"/>
                         <Setter TargetName="Triangle" Property="RenderTransform">
                             <Setter.Value>
                                 <RotateTransform Angle="0"/>
@@ -135,48 +139,64 @@
 
         <Expander Name="solutionPackages" Template="{StaticResource ExpanderSectionTemplate}" IsExpanded="True">
             <Expander.Header>
-                <TextBlock Text="Solution packages" FontWeight="Medium"/>
+                <TextBlock Text="Solution packages" FontWeight="Medium" Foreground="{DynamicResource VsBrush.WindowText}"/>
             </Expander.Header>
-            <ItemsControl ItemsSource="{Binding SolutionPackages}">
-                <ItemsControl.Template>
-                    <ControlTemplate TargetType="ItemsControl">
-                        <ItemsPresenter/>
-                    </ControlTemplate>
-                </ItemsControl.Template>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel>
-                            <TextBlock x:Name="title" Text="{Binding Title}" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Expander>
-        <Expander Name="LibraryPackages" Template="{StaticResource ExpanderSectionTemplate}" IsExpanded="True">
-            <Expander.Header>
-                <TextBlock Text="Library packages" FontWeight="Medium"/>
-            </Expander.Header>
-            
-            <ListView ItemsSource="{Binding LibraryPackages}" SelectedItem ="{Binding SelectedLibraryPackage, Mode=OneWayToSource}" HorizontalContentAlignment="Stretch">
-                
-                <ListView.Template>
-                    <ControlTemplate TargetType="ListView">
-                        <ItemsPresenter/>
-                    </ControlTemplate>
-                </ListView.Template>
+            <ListView ItemsSource="{Binding SolutionPackages}" SelectedItem ="{Binding SelectedLibraryPackage, Mode=OneWayToSource}"
+                      HorizontalContentAlignment="Stretch"
+                      Template="{StaticResource ListViewTemplate}">
 
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Expander Template="{StaticResource ExpanderItemTemplate}">
                             <Expander.Header>
-                                <Grid Height="50" VerticalAlignment="Center">
+                                <Grid Height="55" VerticalAlignment="Center">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Rectangle Grid.Column="0" Width="5" Fill="Red"/>
-                                    <Rectangle Grid.Column="1" Width="50" Fill="Gray"/>
+                                    <Rectangle Grid.Column="1" Width="55" Fill="Gray"/>
+                                    <Grid Grid.Column="2" Margin="2 0 0 0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" Text="{Binding Title}" FontSize="14" FontWeight="Bold"/>
+                                        <TextBlock Grid.Row="1" TextWrapping="WrapWithOverflow" Text="New functionality in this area"/>
+                                    </Grid>
+                                </Grid>
+                            </Expander.Header>
+                            <Grid Margin="4" Background="#FFFF99">
+                                <TextBlock Text="New functionality in this area"/>
+                            </Grid>
+                        </Expander>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+
+            </ListView>
+        </Expander>
+        <Expander Name="LibraryPackages" Template="{StaticResource ExpanderSectionTemplate}" IsExpanded="True">
+            <Expander.Header>
+                <TextBlock Text="Library packages" FontWeight="Medium" Foreground="{DynamicResource VsBrush.WindowText}"/>
+            </Expander.Header>
+            
+            <ListView ItemsSource="{Binding LibraryPackages}" SelectedItem ="{Binding SelectedLibraryPackage, Mode=OneWayToSource}"
+                      HorizontalContentAlignment="Stretch"
+                      Template="{StaticResource ListViewTemplate}">
+                
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Expander Template="{StaticResource ExpanderItemTemplate}">
+                            <Expander.Header>
+                                <Grid Height="55" VerticalAlignment="Center">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Rectangle Grid.Column="0" Width="5" Fill="Red"/>
+                                    <Rectangle Grid.Column="1" Width="55" Fill="Gray"/>
                                     <Grid Grid.Column="2" Margin="2 0 0 0">
                                         <Grid.RowDefinitions>
                                             <RowDefinition/>
@@ -189,6 +209,7 @@
                             </Expander.Header>
                             <Grid Margin="4" Background="#FFFF99">
                                 <Grid.RowDefinitions>
+                                    <RowDefinition/>
                                     <RowDefinition/>
                                     <RowDefinition/>
                                     <RowDefinition/>
@@ -217,6 +238,26 @@
                                 </Grid>
                                 <Grid Grid.Row="2" Name="Description"  Margin="0 5 0 0">
                                     <TextBlock Grid.Column="1" TextWrapping="Wrap" Text="{Binding Description}"/>
+                                </Grid>
+                                <Grid Grid.Row="3" Name="Versions"  Margin="0 5 0 0">
+                                    <TreeView Grid.Column="1" ItemsSource="{Binding Versions}" >
+                                        <TreeView.ItemTemplate>
+                                            <DataTemplate>
+                                                <TreeViewItem Margin="2">
+                                                    <TreeViewItem.Header>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Grid.Column="0" Text="Version" Padding="2 0 2 0"/>
+                                                            <TextBlock Grid.Column="0" Text="{Binding Version}" FontWeight="Bold" Padding="2 0 2 0"/>
+                                                            <Rectangle Grid.Column="2" Fill="Grey"/>
+                                                        </StackPanel>
+                                                    </TreeViewItem.Header>
+                                                    <Grid>
+                                                        <TextBlock Text="{Binding Description}"/>
+                                                    </Grid>
+                                                </TreeViewItem>
+                                            </DataTemplate>
+                                        </TreeView.ItemTemplate>
+                                    </TreeView>
                                 </Grid>
                             </Grid>
                         </Expander>

@@ -47,6 +47,10 @@ namespace LibraryExplorer
         private readonly Package _package;
 
         /// <summary>
+        /// VS Solution service
+        /// </summary>
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="LibraryExplorerWindowCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
@@ -58,7 +62,7 @@ namespace LibraryExplorer
                 throw new ArgumentNullException("package");
             }
 
-            this._package = package;
+            _package = package;
 
             OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commandService != null)
@@ -132,64 +136,13 @@ namespace LibraryExplorer
             var downloadCommandID = new CommandID(TransferCommandSet, cmdidDownload);
             var uploadCommandID = new CommandID(TransferCommandSet, cmdidUpload);
 
-            var refreshCommand = new MenuCommand(new EventHandler(RefreshHandler), refreshCommandID);
-            var downloadCommand = new MenuCommand(new EventHandler(AddOrUpdatePackageInSolution), downloadCommandID);
-            var uploadCommand = new MenuCommand(new EventHandler(AddOrUpdatePackageInLibrary), uploadCommandID);
+            var refreshCommand = new MenuCommand(new EventHandler(_window.control.Refresh), refreshCommandID);
+            var downloadCommand = new MenuCommand(new EventHandler(_window.control.AddOrUpdatePackageInSolution), downloadCommandID);
+            var uploadCommand = new MenuCommand(new EventHandler(_window.control.AddOrUpdatePackageInLibrary), uploadCommandID);
 
             menuCommandService.AddCommand(refreshCommand);
             menuCommandService.AddCommand(downloadCommand);
             menuCommandService.AddCommand(uploadCommand);
-        }
-
-        /// <summary>
-        /// Refresh all lists in view
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="arguments"></param>
-        private void RefreshHandler(object sender, EventArgs arguments)
-        {
-            _window.control.Refresh();
-        }
-
-        /// <summary>
-        /// Copy the source code of a package in the library and add it to the current solution as a new project
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="arguments"></param>
-        private void AddOrUpdatePackageInSolution(object sender, EventArgs arguments)
-        {
-            IVsSolution solutionService = ServiceProvider.GetService(typeof(SVsSolution)) as IVsSolution;
-            var selectedPackage = _window.control.GetSelectedLibraryPackage();
-
-            if (selectedPackage == null)
-            {
-                return;
-            }
-
-            string solutionDirectoryPath, solutionFilePath, solutionUserOptionsFilePath;
-            var solutionInfo = solutionService.GetSolutionInfo(out solutionDirectoryPath, out solutionFilePath, out solutionUserOptionsFilePath);
-
-            if (solutionFilePath == null)
-            {
-                MessageBox.Show("No solution found. First open a solution or create a new one");
-            }
-            else
-            {
-                IntPtr proj;
-                Guid projectType;
-                Guid iidProject = Guid.Empty;
-
-                solutionService.GetProjectTypeGuid(0, selectedPackage.ProjectLocation, out projectType);
-                int result = solutionService.CreateProject(projectType, selectedPackage.ProjectLocation, null, null, (uint)__VSCREATEPROJFLAGS.CPF_OPENFILE, ref iidProject, out proj);
-
-                ErrorHandler.ThrowOnFailure(result);
-            }
-        }
-
-        //TODO: Upload a project to the library
-        private void AddOrUpdatePackageInLibrary(object sender, EventArgs arguments)
-        {
-            MessageBox.Show("Upload not implemented");
         }
     }
 }

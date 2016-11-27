@@ -55,6 +55,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Helpers\HierarchyHelper.cs" />
     <Compile Include="LibraryExplorerWindow.cs" />
     <Compile Include="LibraryExplorerWindowCommand.cs" />
     <Compile Include="LibraryExplorerWindowControl.xaml.cs">
@@ -64,8 +65,8 @@
     <Compile Include="Models\LibraryPackage.cs" />
     <Compile Include="Models\LibraryPackageVersion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\ILocalPackagesExplorer.cs" />
-    <Compile Include="Services\LocalPackagesExplorer.cs" />
+    <Compile Include="Services\ILibraryExplorer.cs" />
+    <Compile Include="Services\LibraryExplorer.cs" />
     <Compile Include="ViewModels\LibraryExplorerWindowViewModel.cs" />
   </ItemGroup>
   <ItemGroup>

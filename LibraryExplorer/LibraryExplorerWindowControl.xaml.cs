@@ -8,6 +8,7 @@ namespace LibraryExplorer
 {
     using Models;
     using Services;
+    using System;
     using System.Windows.Controls;
     using ViewModels;
 
@@ -24,30 +25,32 @@ namespace LibraryExplorer
         /// <summary>
         /// Initializes a new instance of the <see cref="LibraryExplorerWindowControl"/> class.
         /// </summary>
-        public LibraryExplorerWindowControl()
+        public LibraryExplorerWindowControl(LibraryExplorerWindowViewModel viewModel)
         {
             InitializeComponent();
 
-            ILibraryPackagesExplorer explorer = new LibraryPackagesExplorer(@"C:\LibraryPackages");
-            _viewModel = new LibraryExplorerWindowViewModel(explorer);
+            _viewModel = viewModel;
             DataContext = _viewModel;
         }
 
         /// <summary>
-        /// Refresh all lists
+        /// Copy the source code of a package in the library and add it to the current solution as a new project
         /// </summary>
-        public void Refresh()
+        public void AddOrUpdatePackageInSolution(object sender, EventArgs arguments)
         {
-            _viewModel.Refresh();
+            _viewModel.AddOrUpdatePackageInSolution();
         }
 
+        //TODO: Upload a project to the library
+        public void AddOrUpdatePackageInLibrary(object sender, EventArgs arguments)
+        { }
+
         /// <summary>
-        /// Get selected library package, returns null if no package is selected
+        /// Refresh all lists
         /// </summary>
-        /// <returns></returns>
-        public LibraryPackage GetSelectedLibraryPackage()
+        public void Refresh(object sender, EventArgs arguments)
         {
-            return _viewModel.SelectedLibraryPackage;
+            _viewModel.Refresh();
         }
     }
 }
