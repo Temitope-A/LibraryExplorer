@@ -43,7 +43,7 @@ namespace LibraryExplorer
             IVsSolution solutionService = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
 
             //Own services
-            ILibraryExplorer libraryExplorerService = new LibraryExplorer(@"C:\LibraryPackages");
+            ILibraryExplorer libraryExplorerService = new LibraryExplorer(@"\\jeeves\Staff\Temitope Ajileye\LibraryPackages");
 
             // This is the user control hosted by the tool window; Note that, even if this class implements IDisposable,
             // we are not calling Dispose on this object. This is because ToolWindowPane calls Dispose on
