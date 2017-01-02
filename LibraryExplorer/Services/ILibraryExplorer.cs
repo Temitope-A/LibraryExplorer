@@ -12,12 +12,5 @@ namespace LibraryExplorer.Services
         /// Retrieve metadata for all packages in the library
         /// </summary>
         IEnumerable<LibraryPackage> GetPackages();
-
-        /// <summary>
-        /// Get the path to the project in the source code
-        /// </summary>
-        /// <param name="packageName">package name</param>
-        /// <returns>Path to the .csproj file</returns>
-        string GetProjectLocation(string packageName);
     }
 }
