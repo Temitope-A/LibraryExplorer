@@ -203,7 +203,7 @@
                                             <RowDefinition/>
                                         </Grid.RowDefinitions>
                                         <TextBlock Grid.Row="0" Text="{Binding Title}" FontSize="14" FontWeight="Bold"/>
-                                        <TextBlock Grid.Row="1" TextWrapping="WrapWithOverflow" Text="{Binding Headerline}"/>
+                                        <TextBlock Grid.Row="1" TextWrapping="WrapWithOverflow" Text="{Binding Brief}"/>
                                     </Grid>
                                 </Grid>
                             </Expander.Header>

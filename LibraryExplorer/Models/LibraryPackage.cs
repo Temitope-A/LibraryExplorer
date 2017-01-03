@@ -23,9 +23,9 @@ namespace LibraryExplorer.Models
         public string Type { get; set; }
 
         /// <summary>
-        /// Header line
+        /// Short description
         /// </summary>
-        public string Headerline { get; set; }
+        public string Brief { get; set; }
 
         /// <summary>
         /// Authors of the package
